@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Productive Music Player </title>
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+
+    <!-- build:css styles/vendor.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+  </head>
+  <body>
+    <div id="yt-player"></div>
+    <p class="current"> </p>
+    <p class="playlist"> </p>
+
+    <!-- build:js scripts/vendor.js -->
+    <script src="/bower_components/socket.io-client/dist/socket.io.slim.js"></script>
+    <script src="/bower_components/modulejs/dist/modulejs.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js scripts/main.js -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/evented.js"></script>
+    <script src="scripts/command-parser.js"></script>
+    <script src="scripts/player.js"></script>
+    <script src="scripts/server.js"></script>
+    <script src="scripts/view.js"></script>
+    <script src="scripts/main.js"></script>
+    <!-- endbuild -->
+
+    <script>
+      window.ENV = 'development';
+      modulejs.define('io', () => io);
+      modulejs.require('main')()
+    </script>
+  </body>
+</html>

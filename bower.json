@@ -1,0 +1,9 @@
+{
+  "name": "projects",
+  "private": true,
+  "dependencies": {
+    "modulejs": "^2.2.0",
+    "socket.io-client": "^2.0.3"
+  },
+  "devDependencies": {}
+}
