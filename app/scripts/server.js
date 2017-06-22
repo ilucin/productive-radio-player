@@ -47,13 +47,15 @@ modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, eve
       store.isLoadingStations = false;
       return responses.reduce((arr, res) => {
         return res.data.reduce((stations, task) => {
-          const assignee = res.included.find((model) => model.type === 'people' && model.id === task.relationships.assignee.data.id);
+          const assignee = task.relationships.assignee.data ? res.included.find(function(model) {
+            return model.type === 'people' && model.id === task.relationships.assignee.data.id;
+          }) : null;
 
-          return arr.concat({
+          return stations.concat({
             id: task.id,
             name: task.attributes.title,
             tags: task.attributes.tag_list,
-            owner: `${assignee.attributes.first_name} ${assignee.attributes.last_name}`.trim()
+            owner: assignee ? `${assignee.attributes.first_name} ${assignee.attributes.last_name}`.trim() : 'Nobody'
           });
         }, arr);
       }, []);

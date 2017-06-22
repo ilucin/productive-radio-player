@@ -33,10 +33,15 @@ modulejs.define('player', ['store'], function(store) {
 
   function onPlayerStateChange(ev) {
     const state = ev.data;
+    isPlaying = (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING);
+
     if (state === YT.PlayerState.ENDED) {
-      isPlaying = false;
       playFromQueue();
     }
+  }
+
+  function onPlayerError() {
+    isPlaying = false;
   }
 
   function initPlayer() {
@@ -44,7 +49,8 @@ modulejs.define('player', ['store'], function(store) {
       height: '390',
       width: '640',
       events: {
-        onStateChange: onPlayerStateChange
+        onStateChange: onPlayerStateChange,
+        onError: onPlayerError
       }
     });
   }

@@ -22,7 +22,7 @@
   <body>
     <div class="grid">
       <div class="left-pane">
-        <div class="radio-station-list">
+        <div class="radio-station-list js-radio-station-list">
         </div>
       </div>
       <div class="right-pane">
@@ -30,7 +30,12 @@
           <div id="yt-player" class="yt-player"></div>
         </div>
         <div class="right-bottom-pane">
-          <p class="playlist"> </p>
+          <div class="playlist js-playlist"> </div>
+          <div class="controls">
+            <button type="button" class="control-button js-control-button-next" disabled>
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,6 @@
-modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'store', 'view'], function(config, player, server, commandParser, store, view) {
+modulejs.define('main', [
+  'config', 'player', 'server', 'command-parser', 'store', 'view'
+], function(config, player, server, commandParser, store, view) {
   'use strict';
 
   function filterCommandsByType(commands, type) {
@@ -43,9 +45,12 @@ modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'store'
   };
 
   store.observe('currentStation', function(currentStation) {
-    store.isLoadingCurrentStation = true;
+    player.stop();
+    store.isLoadingPlaylist = true;
+    store.playlist = [];
+
     server.fetchCommandsForStation(currentStation.id).then((commands) => {
-      store.isLoadingCurrentStation = false;
+      store.isLoadingPlaylist = false;
       const filteredCommands = filterCommandsByType(commands, 'addToPlaylist').reduce((arr, cmd) => {
         return arr.find((a) => a.url === cmd.url) ? arr : arr.concat(cmd);
       }, []);
@@ -55,7 +60,6 @@ modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'store'
 
   function processServerCommand(text) {
     const cmd = commandParser.parse(text);
-    console.log('Parsed command', cmd);
 
     if (cmd && commandHandlers[cmd.type]) {
       commandHandlers[cmd.type](cmd);
@@ -67,6 +71,7 @@ modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'store'
     server.connectToSocket();
     server.fetchStations().then((stations) => (store.stations = stations));
     server.on('command', processServerCommand);
-    view.on('onStationClick', (station) => (store.currentStation = station));
+    view.on('selectStation', (station) => (store.currentStation = station));
+    view.on('next', () => commandHandlers.next());
   };
 });
