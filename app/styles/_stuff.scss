@@ -1,0 +1,55 @@
+.grid {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.right-pane {
+  flex: 1;
+  min-width: 0;
+}
+
+.left-pane {
+  background-color: #AACCFF;
+  width: 30%;
+  border-right: 1px solid #666;
+}
+
+.right-pane {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.right-top-pane {
+  background-color: #000;
+  overflow: auto;
+}
+
+.right-bottom-pane {
+  background-color: #CCAAFF;
+  flex: 1;
+}
+
+.yt-player {
+  margin: auto;
+  display: block;
+}
+
+.loader {
+  padding: 10px;
+  display: block;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+
+  .pong-loader {
+    margin: auto;
+    margin-top: 10px;
+  }
+}
+
+.templates {
+  display: none;
+}

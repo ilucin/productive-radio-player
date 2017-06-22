@@ -1,4 +1,4 @@
-modulejs.define('server', ['io', 'evented', 'config'], function(io, evented, config) {
+modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, evented, config, store) {
   'use strict';
 
   const {realtimeHost, token, organizationId, projectId, personId, apiHost} = config;
@@ -11,8 +11,7 @@ modulejs.define('server', ['io', 'evented', 'config'], function(io, evented, con
   }
 
   function query(endpoint, filter, perPage = 100, page = 1) {
-    return fetch(encodeURI(`${apiHost}/api/v2/${organizationId}/${endpoint}
-      ?per_page=${perPage}&page=${page}&${filter}&token=${token}`));
+    return fetch(encodeURI(`${apiHost}/api/v2/${organizationId}/${endpoint}?per_page=${perPage}&page=${page}&${filter}&token=${token}`));
   }
 
   function depaginatedQuery(endpoint, filter, perPage = 100) {
@@ -43,7 +42,9 @@ modulejs.define('server', ['io', 'evented', 'config'], function(io, evented, con
   }
 
   function fetchStations() {
+    store.isLoadingStations = true;
     return depaginatedQuery('tasks', `filter[project_id]=${projectId}&filter[status]=1`).then((responses) => {
+      store.isLoadingStations = false;
       return responses.reduce((arr, res) => {
         return res.data.reduce((stations, task) => {
           const assignee = res.included.find((model) => model.type === 'people' && model.id === task.relationships.assignee.data.id);
@@ -51,7 +52,7 @@ modulejs.define('server', ['io', 'evented', 'config'], function(io, evented, con
           return arr.concat({
             id: task.id,
             name: task.attributes.title,
-            tags: task.attributes.tagList,
+            tags: task.attributes.tag_list,
             owner: `${assignee.attributes.first_name} ${assignee.attributes.last_name}`.trim()
           });
         }, arr);

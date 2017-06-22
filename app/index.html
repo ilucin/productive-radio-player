@@ -20,9 +20,30 @@
     <!-- endbuild -->
   </head>
   <body>
-    <div id="yt-player"></div>
-    <p class="current"> </p>
-    <p class="playlist"> </p>
+    <div class="grid">
+      <div class="left-pane">
+        <div class="radio-station-list">
+        </div>
+      </div>
+      <div class="right-pane">
+        <div class="right-top-pane">
+          <div id="yt-player" class="yt-player"></div>
+        </div>
+        <div class="right-bottom-pane">
+          <p class="playlist"> </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="templates">
+      <div id="pong-loader">
+        <div class="pong-loader">
+          <div class="pong-loader__player-one"></div>
+          <div class="pong-loader__player-two"></div>
+          <div class="pong-loader__ball"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- build:js scripts/vendor.js -->
     <script src="/bower_components/socket.io-client/dist/socket.io.slim.js"></script>
@@ -30,13 +51,14 @@
     <!-- endbuild -->
 
     <!-- build:js scripts/main.js -->
+    <script src="scripts/command-parser.js"></script>
     <script src="scripts/config.js"></script>
     <script src="scripts/evented.js"></script>
-    <script src="scripts/command-parser.js"></script>
+    <script src="scripts/main.js"></script>
     <script src="scripts/player.js"></script>
     <script src="scripts/server.js"></script>
+    <script src="scripts/store.js"></script>
     <script src="scripts/view.js"></script>
-    <script src="scripts/main.js"></script>
     <!-- endbuild -->
 
     <script>

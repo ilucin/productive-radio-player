@@ -7,8 +7,7 @@ modulejs.define('config', function() {
     token: '240f869e-d33a-4952-9d5d-109304a4a934',
     personId: '91',
     projectId: '72',
-    organizationId: '16',
-    taskId: '308'
+    organizationId: '16'
   };
 
   const production = {
@@ -17,8 +16,7 @@ modulejs.define('config', function() {
     token: window.PRODUCTION_TOKEN,
     personId: '13892',
     projectId: '1',
-    organizationId: '1',
-    taskId: '100530'
+    organizationId: '1'
   };
 
   return Object.assign({}, ENV === 'development' ? development : production);

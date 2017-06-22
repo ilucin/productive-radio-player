@@ -1,21 +1,24 @@
-modulejs.define('player', ['evented'], function(evented) {
+modulejs.define('player', ['store'], function(store) {
   'use strict';
-
-  const player = evented({});
-  const playlist = [];
 
   let ytPlayer;
   let isYouTubeIframeApiReady = false;
   let isInitCalled = false;
+  let isPlaying = false;
 
   function popFromQueue() {
-    const url = playlist.shift();
-    player.trigger('playlist:change', playlist);
+    const url = store.playlist[0];
+    store.playlist = store.playlist.slice(1);
     return url;
+  }
+
+  function pushToPlaylist(url) {
+    store.playlist = store.playlist.concat(url);
   }
 
   function loadVideoByUrl(url) {
     ytPlayer.loadVideoById(url.split('v=')[1]);
+    isPlaying = true;
   }
 
   function playFromQueue() {
@@ -31,6 +34,7 @@ modulejs.define('player', ['evented'], function(evented) {
   function onPlayerStateChange(ev) {
     const state = ev.data;
     if (state === YT.PlayerState.ENDED) {
+      isPlaying = false;
       playFromQueue();
     }
   }
@@ -61,13 +65,8 @@ modulejs.define('player', ['evented'], function(evented) {
     }
   };
 
-  function pushToPlaylist(url) {
-    playlist.push(url);
-    player.trigger('playlist:change', playlist);
-  }
-
   function playFromQueueIfNotPlaying() {
-    if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+    if (!isPlaying) {
       playFromQueue();
     }
   }
@@ -84,7 +83,7 @@ modulejs.define('player', ['evented'], function(evented) {
     ytPlayer[method](...args);
   }
 
-  return Object.assign(player, {
+  return {
     init,
     pushToPlaylist,
     playFromQueue,
@@ -92,5 +91,5 @@ modulejs.define('player', ['evented'], function(evented) {
     play,
     stop,
     ytPlayerCall
-  });
+  };
 });

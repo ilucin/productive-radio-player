@@ -1,7 +1,12 @@
-modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'view'], function(config, player, server, commandParser, initView) {
+modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'store', 'view'], function(config, player, server, commandParser, store, view) {
   'use strict';
 
-  const {taskId} = config;
+  function filterCommandsByType(commands, type) {
+    return commands.filter((command) => {
+      Object.assign(command, commandParser.parse(command.text));
+      return command && command.type === type;
+    });
+  }
 
   const commandHandlers = {
     addToPlaylist(cmd) {
@@ -26,17 +31,9 @@ modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'view']
     },
 
     addRandomToPlaylist() {
-      server.fetchCommandsForStation(taskId).then((commands) => {
-        let command;
-
-        do {
-          if (commands.lenght) {
-            const idx = Math.floor(Math.random() * commands.length);
-            command = commands[idx];
-            commands.splice(idx, 1);
-            Object.assign(command, commandParser.parse(command.text));
-          }
-        } while (commands.length && command.type !== 'addToPlaylist');
+      server.fetchCommandsForStation(store.currentStation.id).then((commands) => {
+        const filteredCommands = filterCommandsByType(commands, 'addToPlaylist');
+        const command = Math.floor(Math.random() * filteredCommands.length);
 
         if (command) {
           commandHandlers.addToPlaylist(command);
@@ -44,6 +41,17 @@ modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'view']
       });
     }
   };
+
+  store.observe('currentStation', function(currentStation) {
+    store.isLoadingCurrentStation = true;
+    server.fetchCommandsForStation(currentStation.id).then((commands) => {
+      store.isLoadingCurrentStation = false;
+      const filteredCommands = filterCommandsByType(commands, 'addToPlaylist').reduce((arr, cmd) => {
+        return arr.find((a) => a.url === cmd.url) ? arr : arr.concat(cmd);
+      }, []);
+      filteredCommands.slice(0, 10).forEach((command) => commandHandlers.addToPlaylist(command));
+    });
+  });
 
   function processServerCommand(text) {
     const cmd = commandParser.parse(text);
@@ -55,9 +63,10 @@ modulejs.define('main', ['config', 'player', 'server', 'command-parser', 'view']
   }
 
   return function main() {
-    initView();
     player.init();
     server.connectToSocket();
+    server.fetchStations().then((stations) => (store.stations = stations));
     server.on('command', processServerCommand);
+    view.on('onStationClick', (station) => (store.currentStation = station));
   };
 });

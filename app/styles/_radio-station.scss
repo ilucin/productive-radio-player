@@ -1,0 +1,44 @@
+.radio-station {
+  padding: 10px 20px;
+  border-bottom: 1px solid #666;
+  background-color: #FFAACC;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken(#FFAACC, 5%);
+  }
+
+  &.is-current {
+    background-color: #AAFFCC;
+
+    &:hover {
+      background-color: darken(#AAFFCC, 5%);
+    }
+  }
+
+  .radio-station__name {
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .radio-station__owner {
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-top: 5px;
+  }
+
+  .radio-station__tags {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+  }
+
+  .radio-station__tag {
+    padding: 2px 5px;
+    background-color: #CCFFAA;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+}
