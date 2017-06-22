@@ -65,16 +65,18 @@ modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, eve
   function fetchCommandsForStation(stationId) {
     return depaginatedQuery('activities', `filter[task_id]=${stationId}`).then((responses) => {
       return responses.reduce((arr, res) => {
-        return res.data.filter((activity) => activity.attributes.item_type === 'comment').reduce((commands, activity) => {
-          const comment = res.included.find((model) => model.id === String(activity.attributes.item_id));
-          if (comment) {
-            commands.push({
-              id: comment.id,
-              text: getTextContentFromHtml(comment.attributes.body)
-            });
-          }
-          return commands;
-        }, arr);
+        return res.data
+          .filter((activity) => activity.attributes.item_type === 'comment')
+          .reduce((commands, activity) => {
+            const comment = res.included.find((model) => model.id === String(activity.attributes.item_id));
+            if (comment && !comment.attributes.deleted_at) {
+              commands.push({
+                id: comment.id,
+                text: getTextContentFromHtml(comment.attributes.body)
+              });
+            }
+            return commands;
+          }, arr);
       }, []);
     });
   }

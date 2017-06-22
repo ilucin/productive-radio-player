@@ -1,4 +1,4 @@
-modulejs.define('store', ['evented'], function(evented) {
+modulejs.define('store', ['evented', 'runloop'], function(evented, runloop) {
   'use strict';
 
   const store = evented({
@@ -7,7 +7,9 @@ modulejs.define('store', ['evented'], function(evented) {
       const depKeys = args.slice(0, args.length - 1);
 
       depKeys.forEach((depKey) => {
-        store.on(`change:${depKey}`, () => clb(...depKeys.map((key) => store[key])));
+        store.on(`change:${depKey}`, () => {
+          runloop.defer(() => clb(...depKeys.map((key) => store[key])));
+        });
       });
     },
 

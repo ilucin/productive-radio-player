@@ -1,4 +1,4 @@
-modulejs.define('view', ['store', 'evented'], function(store, evented) {
+modulejs.define('view', ['store', 'evented', 'runloop'], function(store, evented, runloop) {
   'use strict';
 
   const view = evented({});
@@ -24,7 +24,7 @@ modulejs.define('view', ['store', 'evented'], function(store, evented) {
         <ol>
           ${playlist.map(function(url) {
             return `<li class="playlist-item"> ${url} </li>`;
-          }).join('')} 
+          }).join('')}
         </ol>
       `;
       controlButtonNext.disabled = playlist.length === 0;
@@ -62,7 +62,9 @@ modulejs.define('view', ['store', 'evented'], function(store, evented) {
     }
   );
 
-  controlButtonNext.addEventListener('click', () => view.trigger('next'));
+  controlButtonNext.addEventListener('click', () => {
+    runloop.run(() => view.trigger('next'));
+  });
 
   return view;
 });

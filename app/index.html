@@ -61,13 +61,16 @@
     <script src="scripts/evented.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/player.js"></script>
+    <script src="scripts/runloop.js"></script>
     <script src="scripts/server.js"></script>
     <script src="scripts/store.js"></script>
+    <script src="scripts/utils.js"></script>
     <script src="scripts/view.js"></script>
     <!-- endbuild -->
 
     <script>
       window.ENV = 'development';
+      window.PRODUCTION_TOKEN = '2e5c7f00-e315-4f57-a367-d3c3f5c0b9a4';
       modulejs.define('io', () => io);
       modulejs.require('main')()
     </script>
