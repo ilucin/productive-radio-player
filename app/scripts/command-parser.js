@@ -1,8 +1,11 @@
 modulejs.define('command-parser', function() {
   'use strict';
 
-  function parse(text) {
-    console.log('Command: ', text);
+  const linkRegexp = /http(.*)youtube(.*)v=/g;
+
+  return function parseCommand(text) {
+    // console.log('Command: ', text);
+    const splits = text.split(' ');
 
     if (text === 'play') {
       return {type: 'play'};
@@ -10,21 +13,21 @@ modulejs.define('command-parser', function() {
       return {type: 'stop'};
     } else if (text === 'next') {
       return {type: 'next'};
-    } else if (text.startsWith('http')) {
-      return {type: 'addToPlaylist', url: text.split(' ')[0]};
-    } else if (text.startsWith('add ')) {
-      return {type: 'addToPlaylist', url: text.split('add ')[1].trim()};
     } else if (text.startsWith('player ')) {
-      const splits = text.split(' ');
       return {type: 'ytPlayerCall', method: splits[1], args: splits.slice(2)};
     } else if (text.startsWith('random')) {
       return {type: 'addRandomToPlaylist'};
     }
 
-    return null;
-  }
+    // try to extract youtube links from text
+    const links = text.split(' ').reduce(function(arr, str) {
+      return str.match(linkRegexp) ? arr.concat(str) : arr;
+    }, []);
 
-  return {
-    parse
+    if (links.length) {
+      return {type: 'addToPlaylist', urls: links};
+    }
+
+    return null;
   };
 });

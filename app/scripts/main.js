@@ -1,18 +1,18 @@
 modulejs.define('main', [
   'config', 'player', 'server', 'command-parser', 'store', 'view'
-], function(config, player, server, commandParser, store, view) {
+], function(config, player, server, parseCommand, store, view) {
   'use strict';
 
   function filterCommandsByType(commands, type) {
     return commands.filter((command) => {
-      Object.assign(command, commandParser.parse(command.text));
+      Object.assign(command, parseCommand(command.text));
       return command && command.type === type;
     });
   }
 
   const commandHandlers = {
     addToPlaylist(cmd) {
-      player.pushToPlaylist(cmd.url);
+      cmd.urls.forEach((url) => player.pushToPlaylist(url));
       player.playFromQueueIfNotPlaying();
     },
 
@@ -51,15 +51,18 @@ modulejs.define('main', [
 
     server.fetchCommandsForStation(currentStation.id).then((commands) => {
       store.isLoadingPlaylist = false;
-      const filteredCommands = filterCommandsByType(commands, 'addToPlaylist').reduce((arr, cmd) => {
-        return arr.find((a) => a.url === cmd.url) ? arr : arr.concat(cmd);
-      }, []);
+      const filteredCommands = filterCommandsByType(commands, 'addToPlaylist');
+      // .reduce((arr, cmd) => {
+      //   return cmd.urls.reduce((inArr, url) => {
+      //     return inArr.find((a) => a.url === url) ? inArr : inArr.concat(cmd);
+      //   }, arr);
+      // }, []);
       filteredCommands.slice(0, 10).forEach((command) => commandHandlers.addToPlaylist(command));
     });
   });
 
   function processServerCommand(text) {
-    const cmd = commandParser.parse(text);
+    const cmd = parseCommand(text);
 
     if (cmd && commandHandlers[cmd.type]) {
       commandHandlers[cmd.type](cmd);
