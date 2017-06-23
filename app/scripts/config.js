@@ -15,7 +15,7 @@ modulejs.define('config', function() {
     apiHost: 'https://api.productive.io',
     token: window.PRODUCTION_TOKEN,
     personId: '13892',
-    projectId: '1',
+    projectId: '23',
     organizationId: '1'
   };
 

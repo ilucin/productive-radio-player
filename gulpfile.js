@@ -7,8 +7,7 @@ const browserSync = require('browser-sync');
 const del = require('del');
 const fs = require('fs');
 const runSequence = require('run-sequence');
-const modifyFile = require('gulp-modify-file')
-// const gutil = require('gulp-util');
+const modifyFile = require('gulp-modify-file');
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
@@ -41,10 +40,10 @@ gulp.task('scripts', () => {
 gulp.task('html', ['styles', 'scripts'], () => {
   return gulp.src('app/*.html')
     .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
-    // .pipe($.if('*.js', $.uglify()))
-    // .on('error', function(err) {
-    //   gutil.log(gutil.colors.red('[Error]'), err.toString());
-    // })
+    // .pipe($.if('*.js', () => minify()))
+    // // .on('error', function(err) {
+    // //   gutil.log(gutil.colors.red('[Error]'), err.toString());
+    // // })
     .pipe($.if('*.css', $.cssnano({safe: true, autoprefixer: false})))
     .pipe($.if('*.html', $.htmlmin({collapseWhitespace: true})))
     .pipe(gulp.dest('dist'));
@@ -94,9 +93,9 @@ gulp.task('inject-to-index', function() {
   return gulp.src('dist/index.html')
       .pipe(modifyFile(function(indexContent) {
         return indexContent
-          .replace('</script><link rel="stylesheet" href="styles/main.css">', `<style>${fs.readFileSync('dist/styles/main.css', 'utf8')}</style>`)
           .replace('<script src="scripts/main.js"></script>', `<script>${fs.readFileSync('dist/scripts/main.js', 'utf8')}</script>`)
-          .replace('<script src="scripts/vendor.js"></script>', `<script>${fs.readFileSync('dist/scripts/vendor.js', 'utf8')}</script>`);
+          .replace('<script src="scripts/vendor.js"></script>', `<script>${fs.readFileSync('dist/scripts/vendor.js', 'utf8')}</script>`)
+          .replace('<link rel="stylesheet" href="styles/main.css">', `<style>${fs.readFileSync('dist/styles/main.css', 'utf8')}</style>`);
       }))
       .pipe(gulp.dest('dist/'));
 });
