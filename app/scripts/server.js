@@ -11,7 +11,7 @@ modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, eve
   }
 
   function query(endpoint, filter, perPage = 100, page = 1) {
-    return fetch(encodeURI(`${apiHost}/api/v2/${organizationId}/${endpoint}?per_page=${perPage}&page=${page}&${filter}&token=${token}`));
+    return fetch(encodeURI(`${apiHost}/api/v2/${organizationId}/${endpoint}?per_page=${perPage}&page=${page}&${filter}&token=${token}`)).then((res) => res.json());
   }
 
   function depaginatedQuery(endpoint, filter, perPage = 100) {
@@ -20,7 +20,6 @@ modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, eve
 
     const loadNextPage = () => {
       return query(endpoint, filter, perPage, page)
-        .then((res) => res.json())
         .then((res) => {
           responses.push(res);
 
@@ -38,7 +37,7 @@ modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, eve
 
   function onNewNotification(evData) {
     query('notifications', `filter[id]=${evData.notification_id}`, 1)
-      .then((res) => server.trigger('command', getTextContentFromHtml(res.data[0].attributes.excerpt)));
+      .then((res) => server.trigger('command', res.data[0].attributes.target_id, getTextContentFromHtml(res.data[0].attributes.excerpt)));
   }
 
   function fetchStations() {
@@ -51,10 +50,17 @@ modulejs.define('server', ['io', 'evented', 'config', 'store'], function(io, eve
             return model.type === 'people' && model.id === task.relationships.assignee.data.id;
           }) : null;
 
+          if (!task.attributes.tag_list.includes('infinum-radio')) {
+            return stations;
+          }
+
+          const tags = task.attributes.tag_list.slice();
+          tags.splice(tags.indexOf('infinum-radio'), 1);
+
           return stations.concat({
             id: task.id,
             name: task.attributes.title,
-            tags: task.attributes.tag_list,
+            tags,
             owner: assignee ? `${assignee.attributes.first_name} ${assignee.attributes.last_name}`.trim() : 'Nobody'
           });
         }, arr);

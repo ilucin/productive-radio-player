@@ -12,8 +12,14 @@ modulejs.define('player', ['store'], function(store) {
     return url;
   }
 
-  function pushToPlaylist(url) {
-    store.playlist = store.playlist.concat(url);
+  function pushToPlaylist(url, opts) {
+    const urls = Array.isArray(url) ? url : [url];
+
+    if (opts && opts.prepend) {
+      store.playlist = urls.concat(store.playlist);
+    } else {
+      store.playlist = store.playlist.concat(urls);
+    }
   }
 
   function loadVideoByUrl(url) {

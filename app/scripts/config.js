@@ -4,8 +4,8 @@ modulejs.define('config', function() {
   const development = {
     realtimeHost: 'http://localhost:3000',
     apiHost: 'http://api.productive.io.dev',
-    token: '240f869e-d33a-4952-9d5d-109304a4a934',
-    personId: '91',
+    token: '3b0c6139-8be0-422c-b4d2-ec2979aa3da9',
+    personId: '94',
     projectId: '72',
     organizationId: '16'
   };

@@ -4,6 +4,7 @@ modulejs.define('main', [
   'use strict';
 
   const stationCacheMap = {};
+  let isAppendingInfinitePlayback = false;
 
   function filterCommandsByType(commands, type) {
     return commands.filter((command) => {
@@ -13,8 +14,8 @@ modulejs.define('main', [
   }
 
   const commandHandlers = {
-    addToPlaylist(cmd) {
-      cmd.urls.forEach((url) => player.pushToPlaylist(url));
+    addToPlaylist(cmd, opts) {
+      player.pushToPlaylist(cmd.urls, opts && opts.isRealtimeCommand ? {prepend: true} : null);
       player.playFromQueueIfNotPlaying();
     },
 
@@ -49,14 +50,18 @@ modulejs.define('main', [
   store.observe('playlist', function(playlist) {
     const stationCache = stationCacheMap[store.currentStation.id];
 
-    if (playlist.length < 3 && stationCache.commands && stationCache.commands.length) {
-      if (stationCache.shuffledCommands.length === 0) {
-        stationCache.shuffledCommands = utils.shuffleArray(stationCache.commands);
-      }
+    if (!isAppendingInfinitePlayback && playlist.length < 3 && stationCache.commands && stationCache.commands.length) {
+      isAppendingInfinitePlayback = true;
+      setTimeout(function() {
+        if (stationCache.shuffledCommands.length === 0) {
+          stationCache.shuffledCommands = utils.shuffleArray(stationCache.commands);
+        }
 
-      stationCache.shuffledCommands.splice(0, 5).forEach((command) => {
-        commandHandlers.addToPlaylist(command);
-      });
+        stationCache.shuffledCommands.splice(0, 5).forEach((command) => {
+          commandHandlers.addToPlaylist(command);
+        });
+        isAppendingInfinitePlayback = false;
+      }, 1000);
     }
   });
 
@@ -80,11 +85,11 @@ modulejs.define('main', [
       }));
   });
 
-  function processServerCommand(text) {
+  function processServerCommand(stationId, text) {
     const cmd = parseCommand(text);
 
-    if (cmd && commandHandlers[cmd.type]) {
-      commandHandlers[cmd.type](cmd);
+    if (String(stationId) === store.currentStation.id && cmd && commandHandlers[cmd.type]) {
+      commandHandlers[cmd.type](cmd, {isRealtimeCommand: true});
     }
   }
 

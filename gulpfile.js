@@ -5,8 +5,9 @@ const gulp = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
 const browserSync = require('browser-sync');
 const del = require('del');
-const wiredep = require('wiredep').stream;
+const fs = require('fs');
 const runSequence = require('run-sequence');
+const modifyFile = require('gulp-modify-file')
 // const gutil = require('gulp-util');
 
 const $ = gulpLoadPlugins();
@@ -76,7 +77,6 @@ gulp.task('serve', () => {
     gulp.watch(['app/*.html']).on('change', reload);
     gulp.watch('app/styles/**/*.scss', ['styles']);
     gulp.watch('app/scripts/**/*.js', ['scripts']);
-    gulp.watch('bower.json', ['wiredep']);
   });
 });
 
@@ -90,19 +90,15 @@ gulp.task('serve:dist', () => {
   });
 });
 
-// inject bower components
-gulp.task('wiredep', () => {
-  gulp.src('app/styles/*.scss')
-    .pipe(wiredep({
-      ignorePath: /^(\.\.\/)+/
-    }))
-    .pipe(gulp.dest('app/styles'));
-
-  gulp.src('app/*.html')
-    .pipe(wiredep({
-      ignorePath: /^(\.\.\/)*\.\./
-    }))
-    .pipe(gulp.dest('app'));
+gulp.task('inject-to-index', function() {
+  return gulp.src('dist/index.html')
+      .pipe(modifyFile(function(indexContent) {
+        return indexContent
+          .replace('</script><link rel="stylesheet" href="styles/main.css">', `<style>${fs.readFileSync('dist/styles/main.css', 'utf8')}</style>`)
+          .replace('<script src="scripts/main.js"></script>', `<script>${fs.readFileSync('dist/scripts/main.js', 'utf8')}</script>`)
+          .replace('<script src="scripts/vendor.js"></script>', `<script>${fs.readFileSync('dist/scripts/vendor.js', 'utf8')}</script>`);
+      }))
+      .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('build', ['html', 'extras'], () => {
@@ -110,5 +106,5 @@ gulp.task('build', ['html', 'extras'], () => {
 });
 
 gulp.task('default', () => {
-  runSequence(['clean', 'wiredep'], 'build');
+  runSequence(['clean'], 'build');
 });
