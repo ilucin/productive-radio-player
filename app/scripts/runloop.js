@@ -1,6 +1,6 @@
 modulejs.define('runloop', function() {
   'use strict';
-  
+
   const deferedJobs = [];
   let jobCount = 0;
 
@@ -22,8 +22,13 @@ modulejs.define('runloop', function() {
     }
   }
 
+  function wrap(job) {
+    return (...args) => run(() => job(...args));
+  }
+
   return {
     defer,
-    run
+    run,
+    wrap
   };
 });
